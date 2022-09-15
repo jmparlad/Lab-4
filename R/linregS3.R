@@ -56,7 +56,7 @@ linreg <- function(formula, data){
   
   ## Store all the computations
   lr_comps <- list(regCoeff, y_fitted, residuals, degrees, residual_variance, 
-                  coefficient_variance, t_values, p_values)
+                   coefficient_variance, t_values, p_values)
   
   # Assign class to the object:
   class(lr_comps) <- "linreg"
@@ -95,4 +95,3 @@ summary.linreg <- function(){
 
 ## Remember to export methods: 
 # S3method(method, linreg)
-
