@@ -1,3 +1,17 @@
+#' Calculate parameters of a multiple regression model.
+#'
+#' This function computes the linear regression parameters and assigns a class
+#' to the returned object with the computation results.
+#'
+#' @param formula Formula or relation between the two model variables.
+#' @param data Data to be used to compute the regression parameters.
+#' @return The list \code{lr_comps} containing the computation results of
+#' the multiple regression model parameters.
+#' @examples
+#' data(iris)
+#' lr_comps <- linreg(Petal.Length ~ Species, data = iris)
+
+
 ## Terminal commands to use the function:
 # formulaa = Petal.Length ~ Species
 # # -> explain Petal.Length via Species and Petal.Width
