@@ -1,6 +1,6 @@
 Package: Lab4Package
 Type: Package
-Title: Package to handle linear regression models.
+Title: Package to handle linear regression models
 Version: 1.0
 Date: 2022-09-15
 Author: Nikolaus Stratil-Sauer <niko.stratil@gmail.com> , Juan Manuel Pardo <juapa351@student.liu.se>
