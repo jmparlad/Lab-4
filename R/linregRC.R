@@ -61,11 +61,12 @@ linreg <- setRefClass(
       writeLines(c(
         "Call:",
         paste(
-          "linreg(formula =",
+          "linreg(formula = ",
           .self$formulaString,
-          ", data =",
+          ", data = ",
           .self$dataName,
-          ")"
+          ")",
+          sep = ""
         ),
         "",
         "Coefficients:"
@@ -141,11 +142,10 @@ linreg <- setRefClass(
         xlab(paste("Fitted values\n lm(", .self$formulaString, ")")) + ylab("Residuals") +
         ggtitle("Residuals vs Fitted")
       
-      # par(mfrow=c(2,1)) to fit both graphs into one?
-      # TODO How to return both graphs?
+      rplots <- list(p1, p2)
       # TODO check the standardized residuals computations, something is wrong. 
       # I think the formula we are using is not exactly the correct one.
-      return(p1) 
+      return(rplots) 
 # >>>>>>> 1fbf3985baa7b543ab443deb79c2f6cd849997f3
     },
     resid = function() {
@@ -160,10 +160,10 @@ linreg <- setRefClass(
       return(coefs)
     },
     summary = function() {
-      rstderror = paste("Residual Standard Error: ", sqrt(.self$residual_variance),
-                        " on ", degrees," degrees of freedom")
+      rstderror = paste("Residual standard error:", format(sqrt(.self$residual_variance), nsmall = 3),
+                        "on", degrees,"degrees of freedom")
       p_values_temp = 1 - .self$p_values
-      coefMatrix = matrix(c(.self$coef(),0,0,0,0,0,.self$t_values,p_values_temp),nrow = length(.self$coef()),ncol = 4)
+      coefMatrix = matrix(c(.self$coef(),0,0,0,.self$t_values,p_values_temp),nrow = length(.self$coef()),ncol = 4)
       colnames(coefMatrix) = c("Estimate", "Std. Error", "t value", "p value")
       rownames(coefMatrix) = rownames(.self$regCoeff)
       writeLines(c(
@@ -179,7 +179,7 @@ linreg <- setRefClass(
       base::print(base::summary(.self$residuals)[-4])
       cat("\nCoefficients:\n")
       base::print(coefMatrix)
-      cat(paste("\n",rstderror))
+      cat(paste("\n",rstderror, "\n", sep = ""))
       
       #TODO replace 0 in coefMatrix with std error!
     }
