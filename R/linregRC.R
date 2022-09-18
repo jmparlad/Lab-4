@@ -69,10 +69,8 @@ linreg <- setRefClass(
         "",
         "Coefficients:"
       ))
-      cat(rownames(.self$regCoeff))
-      cat("\n")
-      cat(as.vector(.self$regCoeff)) # TODO print properly???
-    },
+      base::print(.self$coef())
+      },
     plot = function() {
       # TODO
     },
@@ -90,6 +88,10 @@ linreg <- setRefClass(
     summary = function() {
       rstderror = paste("Residual Standard Error: ", sqrt(.self$residual_variance),
                         " on ", degrees," degrees of freedom")
+      p_values_temp = 1 - .self$p_values
+      coefMatrix = matrix(c(.self$coef(),0,0,0,0,0,.self$t_values,p_values_temp),nrow = length(.self$coef()),ncol = 4)
+      colnames(coefMatrix) = c("Estimate", "Std. Error", "t value", "p value")
+      rownames(coefMatrix) = rownames(.self$regCoeff)
       writeLines(c(
           "Call:",
           paste(
@@ -99,12 +101,13 @@ linreg <- setRefClass(
             .self$dataName,
             ")"
           ),
-          "", "Residuals:","Coefficients:",rstderror))
+          "", "Residuals:"))
+      base::print(base::summary(.self$residuals)[-4])
+      cat("\nCoefficients:\n")
+      base::print(coefMatrix)
+      cat(paste("\n",rstderror))
       
-        # TODO add residuals and coefficient
-        # the issue is that the print() and summary() methods don't work
-        # inside the class because they get overwritten and I don't know how 
-        # to properly display this data (matrix, named vector) with other functions like cat()
+      #TODO replace 0 in coefMatrix with std error!
     }
   )
 )
