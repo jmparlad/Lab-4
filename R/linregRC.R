@@ -71,16 +71,9 @@ linreg <- setRefClass(
         "",
         "Coefficients:"
       ))
-# <<<<<<< HEAD
       base::print(.self$coef())
       },
-#     plot = function() {
-#       # TODO
-# # =======
-#       cat(rownames(.self$regCoeff))
-#       cat("\n")
-#       cat(as.vector(.self$regCoeff)) # TODO print properly???
-    # },
+    
     plot = function(){
       j <- 1 # sample counter
       res_acc <- c() # Accumulated residuals (by appendage) for each species
@@ -146,7 +139,6 @@ linreg <- setRefClass(
       # TODO check the standardized residuals computations, something is wrong. 
       # I think the formula we are using is not exactly the correct one.
       return(rplots) 
-# >>>>>>> 1fbf3985baa7b543ab443deb79c2f6cd849997f3
     },
     resid = function() {
       return(.self$residuals)
@@ -162,7 +154,7 @@ linreg <- setRefClass(
     summary = function() {
       rstderror = paste("Residual standard error:", format(sqrt(.self$residual_variance), nsmall = 3),
                         "on", degrees,"degrees of freedom")
-      p_values_temp = 1 - .self$p_values
+      p_values_temp = ifelse(.self$t_values > 0,1-.self$p_values, .self$p_values)
       
       stdErrors = c()
       for (i in 1:ncol(coefficient_variance)) {
@@ -185,8 +177,6 @@ linreg <- setRefClass(
       cat("\nCoefficients:\n")
       base::print(coefMatrix)
       cat(paste("\n",rstderror, "\n", sep = ""))
-      
-      #TODO replace 0 in coefMatrix with std error!
     }
   )
 )
