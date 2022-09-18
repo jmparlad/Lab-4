@@ -4,6 +4,7 @@
 #' to the returned object with the computation results.
 #' @exportClass linreg
 #' @export linreg
+#' @import ggplot2
 
 linreg <- setRefClass(
   "linreg" ,
@@ -60,19 +61,60 @@ linreg <- setRefClass(
       writeLines(c(
         "Call:",
         paste(
-          "linreg(formula = ",
+          "linreg(formula =",
           .self$formulaString,
-          ", data = ",
+          ", data =",
           .self$dataName,
           ")"
         ),
         "",
         "Coefficients:"
       ))
+<<<<<<< HEAD
       base::print(.self$coef())
       },
     plot = function() {
       # TODO
+=======
+      cat(rownames(.self$regCoeff))
+      cat("\n")
+      cat(as.vector(.self$regCoeff)) # TODO print properly???
+    },
+    plot = function(){
+      j <- 1 # sample counter
+      res_acc <- c() # Accumulated residuals (by appendage) for each species
+      median_res <- c() # median of the residuals
+      l <- c()
+      l <- append(l, unique(.self$y_fitted)) # Fitted values (1 per species)
+      for (i in 1:length(l)){
+        while (isTRUE(.self$y_fitted[j] == l[i])){
+          res_acc <- append(res_acc, .self$residuals[j]) # Append residuals for each species
+          j <- j + 1 # Next sample
+        }
+        median_res <- append(median_res, median(res_acc)) # Median of residuals for the species
+        res_acc <- c() # Reset accumulated residuals for the next species
+      }
+                  
+      # Create data frames to build correctly the plots
+      # (one for the points and another one for the median line):
+      datap1 <- data.frame(
+        fit_val = c(.self$y_fitted),
+        res = c(.self$residuals)
+      )
+      datap2 <- data.frame(
+        fit_val = c(l),
+        res = c(median_res)
+      )
+      p1 <- ggplot2::ggplot( data = datap1) +
+        aes(x = fit_val, y = res) +
+        geom_point() +
+        geom_line(data= datap2, colour="#CC0000") +
+        xlab("Fitted values\n lm(Petal.Length ~ Species)") + ylab("Residuals") +
+        ggtitle("Residuals vs Fitted")
+      
+      # TODO Complete second plot
+      return(p1)
+>>>>>>> 1fbf3985baa7b543ab443deb79c2f6cd849997f3
     },
     resid = function() {
       return(.self$residuals)
