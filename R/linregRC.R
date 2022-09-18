@@ -70,25 +70,46 @@ linreg <- setRefClass(
         "",
         "Coefficients:"
       ))
+# <<<<<<< HEAD
       base::print(.self$coef())
       },
-    plot = function() {
+#     plot = function() {
+#       # TODO
+# # =======
+#       cat(rownames(.self$regCoeff))
+#       cat("\n")
+#       cat(as.vector(.self$regCoeff)) # TODO print properly???
+    # },
+    plot = function(){
       j <- 1 # sample counter
       res_acc <- c() # Accumulated residuals (by appendage) for each species
       median_res <- c() # median of the residuals
       l <- c()
+      sq_standres <- c()
+      median_sq_standres <- c()
+      sd_res_total <- c()
       l <- append(l, unique(.self$y_fitted)) # Fitted values (1 per species)
       for (i in 1:length(l)){
         while (isTRUE(.self$y_fitted[j] == l[i])){
           res_acc <- append(res_acc, .self$residuals[j]) # Append residuals for each species
+          
+          # Compute square root of standardized residuals for the second plot:
+          sq_standres <- append(sq_standres, sqrt(abs(.self$residuals[j]/sqrt(.self$y_fitted[j]))))
+          
           j <- j + 1 # Next sample
         }
         median_res <- append(median_res, median(res_acc)) # Median of residuals for the species
+        median_sq_standres <- append(median_sq_standres, median(sq_standres)) # Median of standardized residuals
         res_acc <- c() # Reset accumulated residuals for the next species
+        sd_res_total <- append(sd_res_total, sq_standres) # Append the set of data 
+        # to have all the elements stored after the loop
+        
+        sq_standres <- c() # Reset accumulated standardized residuals
       }
                   
       # Create data frames to build correctly the plots
       # (one for the points and another one for the median line):
+      ## Plot 1:
       datap1 <- data.frame(
         fit_val = c(.self$y_fitted),
         res = c(.self$residuals)
@@ -101,11 +122,31 @@ linreg <- setRefClass(
         aes(x = fit_val, y = res) +
         geom_point() +
         geom_line(data= datap2, colour="#CC0000") +
-        xlab("Fitted values\n lm(Petal.Length ~ Species)") + ylab("Residuals") +
+        xlab(paste("Fitted values\n lm(", .self$formulaString, ")")) + ylab("Residuals") +
         ggtitle("Residuals vs Fitted")
       
-      # TODO Complete second plot
-      return(p1)
+      # Plot 2:
+      datap3 <- data.frame(
+        fit_val = c(.self$y_fitted),
+        sd_res = c(sd_res_total)
+      )
+      datap4 <- data.frame(
+        fit_val = c(l),
+        sd_res = c(median_sq_standres)
+      )
+      p2 <- ggplot2::ggplot( data = datap3) +
+        aes(x = fit_val, y = sd_res) +
+        geom_point() +
+        geom_line(data= datap4, colour="#CC0000") +
+        xlab(paste("Fitted values\n lm(", .self$formulaString, ")")) + ylab("Residuals") +
+        ggtitle("Residuals vs Fitted")
+      
+      # par(mfrow=c(2,1)) to fit both graphs into one?
+      # TODO How to return both graphs?
+      # TODO check the standardized residuals computations, something is wrong. 
+      # I think the formula we are using is not exactly the correct one.
+      return(p1) 
+# >>>>>>> 1fbf3985baa7b543ab443deb79c2f6cd849997f3
     },
     resid = function() {
       return(.self$residuals)
