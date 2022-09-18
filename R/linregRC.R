@@ -70,17 +70,9 @@ linreg <- setRefClass(
         "",
         "Coefficients:"
       ))
-<<<<<<< HEAD
       base::print(.self$coef())
       },
     plot = function() {
-      # TODO
-=======
-      cat(rownames(.self$regCoeff))
-      cat("\n")
-      cat(as.vector(.self$regCoeff)) # TODO print properly???
-    },
-    plot = function(){
       j <- 1 # sample counter
       res_acc <- c() # Accumulated residuals (by appendage) for each species
       median_res <- c() # median of the residuals
@@ -114,7 +106,6 @@ linreg <- setRefClass(
       
       # TODO Complete second plot
       return(p1)
->>>>>>> 1fbf3985baa7b543ab443deb79c2f6cd849997f3
     },
     resid = function() {
       return(.self$residuals)
