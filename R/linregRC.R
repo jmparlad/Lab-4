@@ -163,7 +163,12 @@ linreg <- setRefClass(
       rstderror = paste("Residual standard error:", format(sqrt(.self$residual_variance), nsmall = 3),
                         "on", degrees,"degrees of freedom")
       p_values_temp = 1 - .self$p_values
-      coefMatrix = matrix(c(.self$coef(),0,0,0,.self$t_values,p_values_temp),nrow = length(.self$coef()),ncol = 4)
+      
+      stdErrors = c()
+      for (i in 1:ncol(coefficient_variance)) {
+        stdErrors = c(stdErrors,sqrt(coefficient_variance[i, i]))
+      }
+      coefMatrix = matrix(c(.self$coef(),stdErrors,.self$t_values,p_values_temp),nrow = length(.self$coef()),ncol = 4)
       colnames(coefMatrix) = c("Estimate", "Std. Error", "t value", "p value")
       rownames(coefMatrix) = rownames(.self$regCoeff)
       writeLines(c(
