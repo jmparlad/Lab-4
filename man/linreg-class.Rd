@@ -4,9 +4,18 @@
 \name{linreg-class}
 \alias{linreg-class}
 \alias{linreg}
-\title{This is a class representing our model}
+\title{Assign a class representing our model}
+\arguments{
+\item{formula}{Formula or relation between the two model variables.}
+
+\item{data}{Data to be used to compute the regression parameters.}
+}
 \description{
-This assigns a RC class
-to the returned object with the computation results.
+This program assigns an RC class which contains the linear regression
+parameters and some functions to do a simple linear regression analysis
 }
 
+\examples{
+data(iris)
+linreg_mod <- linreg$new(Petal.Length ~ Species, data = iris)
+}

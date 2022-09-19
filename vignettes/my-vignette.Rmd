@@ -1,8 +1,8 @@
 ---
-title: "Linear regression vignette"
+title: "Linear Regression Analysis"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{my-vignette}
+  %\VignetteIndexEntry{Linear Regression Analysis}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -16,4 +16,79 @@ knitr::opts_chunk$set(
 
 ```{r setup}
 library(Lab4Package)
+```
+# Overview
+This vignette illustrates how the package [Lab4Package](https://github.com/jmparlad/Lab-4.git) works and it explains its different functionalities for handling linear regression models and making a simple regression analysis. The package is built using RC Object Oriented Programming, so that after initializing a class the user can have direct access to the different regression parameters and use the different functionalities of the class in an easy way.
+
+# Initializing the class
+The first step for using the package is assigning the class. To do this, a data set and a formula or relation between the model variables should be introduced as input. This can be done as in the following example, where the well known data set iris is used:
+```{r}
+data(iris)
+linreg_ex <- linreg$new(Petal.Length ~ Species, data = iris)
+```
+Once the class is initialized, the regression parameters and the class methods can be called with simple commands.
+
+# Linear regression parameters
+The following regression parameters can be accessed within the class:
+
+* Regression coefficients $\hat{\beta}$:
+```{r}
+linreg_ex$regCoeff
+```
+* Fitted values $\hat{y}$:
+```{r}
+linreg_ex$y_fitted
+```
+* Residuals $df$:
+```{r}
+linreg_ex$residuals
+```
+* Degrees of freedom $\hat{e}$:
+```{r}
+linreg_ex$degrees
+```
+* Residual variance $\hat{\sigma}^2$:
+```{r}
+linreg_ex$residual_variance
+```
+* Variance of regression coefficients $\hat{Var}(\hat{\beta})$:
+```{r}
+linreg_ex$coefficient_variance
+```
+* t-values $t_\beta$:
+```{r}
+linreg_ex$t_values
+```
+* p-values $p_\beta$:
+```{r}
+linreg_ex$p_values
+```
+
+# Linear regression functions
+The following functions can be used to do an analysis of the regression model:
+
+* Print coefficients and coefficient names:
+```{r}
+linreg_ex$print()
+```
+* Plot regression graphs:
+```{r}
+linreg_ex$plot()
+```
+
+* Return vector of residuals $\hat{e}$:
+```{r}
+linreg_ex$resid()
+```
+* Return the predicted values $\hat{y}$:
+```{r}
+linreg_ex$pred()
+```
+* Return the coefficients as a named vector:
+```{r}
+linreg_ex$coef()
+```
+* Print a summary of the regression model:
+```{r}
+linreg_ex$summary()
 ```

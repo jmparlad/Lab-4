@@ -1,10 +1,17 @@
-#' This is a class representing our model
+#' Assign a class representing our model
 #'
-#' This assigns a RC class
-#' to the returned object with the computation results.
+#' This program assigns an RC class which contains the linear regression
+#' parameters and some functions to do a simple linear regression analysis
 #' @exportClass linreg
 #' @export linreg
 #' @import ggplot2
+#'
+#' @param formula Formula or relation between the two model variables.
+#' @param data Data to be used to compute the regression parameters.
+#' @examples
+#' data(iris)
+#' linreg_mod <- linreg$new(Petal.Length ~ Species, data = iris)
+
 
 linreg <- setRefClass(
   "linreg" ,
@@ -88,18 +95,18 @@ linreg <- setRefClass(
           res_acc <- append(res_acc, .self$residuals[j]) # Append residuals for each species
           
           # Compute square root of standardized residuals for the second plot:
-          sq_standres <- append(sq_standres, sqrt(abs(.self$residuals[j]/sqrt(.self$y_fitted[j]))))
-          # sq_standres <- append(sq_standres, sqrt(.self$residuals[j]/sd(.self$residuals[j])))
+          sq_standres <- append(sq_standres, sqrt(abs(.self$residuals[j]/sqrt(.self$residual_variance))))
           
           j <- j + 1 # Next sample
         }
         median_res <- append(median_res, median(res_acc)) # Median of residuals for the species
-        median_sq_standres <- append(median_sq_standres, median(sq_standres)) # Median of standardized residuals
         res_acc <- c() # Reset accumulated residuals for the next species
-        sd_res_total <- append(sd_res_total, sq_standres) # Append the set of data 
-        # to have all the elements stored after the loop
         
+        median_sq_standres <- append(median_sq_standres, median(sq_standres)) # Median of standardized residuals
+        sd_res_total <- append(sd_res_total, sq_standres) # Append the set of data to have the entire set
+        # to have all the elements stored after the loop
         sq_standres <- c() # Reset accumulated standardized residuals
+        cat(sd_res_total, paste("\n\n"))
       }
                   
       # Create data frames to build correctly the plots
@@ -133,12 +140,12 @@ linreg <- setRefClass(
         aes(x = fit_val, y = sd_res) +
         geom_point() +
         geom_line(data= datap4, colour="#CC0000") +
-        xlab(paste("Fitted values\n lm(", .self$formulaString, ")")) + ylab("Residuals") +
-        ggtitle("Residuals vs Fitted")
+        xlab(paste("Fitted values\n lm(", .self$formulaString, ")")) + 
+        ylab(expression(sqrt(abs("Standardized Residuals")))) +
+        ggtitle("Scale - Location")
       
       rplots <- list(p1, p2)
-      # TODO check the standardized residuals computations, something is wrong. 
-      # I think the formula we are using is not exactly the correct one.
+      # TODO check the median of the standardized residuals computations, 
       return(rplots) 
     },
     resid = function() {
