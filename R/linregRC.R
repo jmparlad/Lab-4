@@ -89,6 +89,7 @@ linreg <- setRefClass(
           
           # Compute square root of standardized residuals for the second plot:
           sq_standres <- append(sq_standres, sqrt(abs(.self$residuals[j]/sqrt(.self$y_fitted[j]))))
+          # sq_standres <- append(sq_standres, sqrt(.self$residuals[j]/sd(.self$residuals[j])))
           
           j <- j + 1 # Next sample
         }
@@ -152,17 +153,15 @@ linreg <- setRefClass(
       return(coefs)
     },
     summary = function() {
-      rstderror = paste("Residual standard error:", format(sqrt(.self$residual_variance), nsmall = 3),
+      rstderror = paste("Residual standard error:", sqrt(.self$residual_variance),
                         "on", degrees,"degrees of freedom")
       p_values_temp = ifelse(.self$t_values > 0,1-.self$p_values, .self$p_values)
       
       stdErrors = c()
       for (i in 1:ncol(coefficient_variance)) {
         stdErrors = c(stdErrors,sqrt(coefficient_variance[i, i]))
+        
       }
-      coefMatrix = matrix(c(.self$coef(),stdErrors,.self$t_values,p_values_temp),nrow = length(.self$coef()),ncol = 4)
-      colnames(coefMatrix) = c("Estimate", "Std. Error", "t value", "p value")
-      rownames(coefMatrix) = rownames(.self$regCoeff)
       writeLines(c(
           "Call:",
           paste(
@@ -174,8 +173,32 @@ linreg <- setRefClass(
           ),
           "", "Residuals:"))
       base::print(base::summary(.self$residuals)[-4])
-      cat("\nCoefficients:\n")
-      base::print(coefMatrix)
+      cat("\n\tEstimate \tStd. Error \tt value \tp value \n")
+      coefs <- .self$coef()
+      rn <- rownames(.self$regCoeff)
+      sstars <- c()
+      for (i in 1:ncol(coefficient_variance)) {
+        if (p_values_temp[i] < 0.001){
+          sstars <- append(sstars, "***")
+        }
+        else if ((p_values_temp[i] >= 0.001) && (p_values_temp[i] > 0.01)){
+          sstars <- append(sstars, "**")
+        }
+        else if ((p_values_temp[i] >= 0.01) && (p_values_temp[i] > 0.05)){
+          sstars <- append(sstars, "*")
+        }
+        else if ((p_values_temp[i] >= 0.05) && (p_values_temp[i] > 0.1)){
+          sstars <- append(sstars, ".")
+        }
+        else {
+          sstars <- append(sstars, " ")
+        }
+        cat(rn[i], paste(coefs[i],
+                         stdErrors[i], 
+                         .self$t_values[i],
+                         p_values_temp[i], sstars[i], "\n"))
+        
+      }
       cat(paste("\n",rstderror, "\n", sep = ""))
     }
   )
