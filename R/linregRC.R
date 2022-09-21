@@ -5,6 +5,7 @@
 #' @exportClass linreg
 #' @export linreg
 #' @import ggplot2
+#' @import methods
 #'
 #' @param formula Formula or relation between the two model variables.
 #' @param data Data to be used to compute the regression parameters.

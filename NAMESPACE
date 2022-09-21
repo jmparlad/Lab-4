@@ -3,3 +3,4 @@
 export(linreg)
 exportClasses(linreg)
 import(ggplot2)
+import(methods)

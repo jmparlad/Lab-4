@@ -16,7 +16,8 @@ Config/testthat/edition: 3
 Depends: 
     R (>= 2.10)
 Imports:
-  ggplot2
+  ggplot2,
+  methods
 LazyData: true
 Encoding: UTF-8
 VignetteBuilder: knitr
