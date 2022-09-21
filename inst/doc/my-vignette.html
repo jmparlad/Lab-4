@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Linear Regression Analysis</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Linear Regression Analysis</h1>
+
+
+
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(Lab4Package)</span></code></pre></div>
+<div id="overview" class="section level1">
+<h1>Overview</h1>
+<p>This vignette illustrates how the package <a href="https://github.com/jmparlad/Lab-4.git">Lab4Package</a> works and
+it explains its different functionalities for handling linear regression
+models and making a simple regression analysis. The package is built
+using RC Object Oriented Programming, so that after initializing a class
+the user can have direct access to the different regression parameters
+and use the different functionalities of the class in an easy way.</p>
+</div>
+<div id="initializing-the-class" class="section level1">
+<h1>Initializing the class</h1>
+<p>The first step for using the package is assigning the class. To do
+this, a data set and a formula or relation between the model variables
+should be introduced as input. This can be done as in the following
+example, where the well known data set iris is used:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(iris)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>linreg_ex <span class="ot">&lt;-</span> linreg<span class="sc">$</span><span class="fu">new</span>(Petal.Length <span class="sc">~</span> Species, <span class="at">data =</span> iris)</span></code></pre></div>
+<p>Once the class is initialized, the regression parameters and the
+class methods can be called with simple commands.</p>
+</div>
+<div id="linear-regression-parameters" class="section level1">
+<h1>Linear regression parameters</h1>
+<p>The following regression parameters can be accessed within the
+class:</p>
+<ul>
+<li>Regression coefficients <span class="math inline">\(\hat{\beta}\)</span>:</li>
+</ul>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>linreg_ex<span class="sc">$</span>regCoeff</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                    [,1]</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; (Intercept)       1.462</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Speciesversicolor 2.798</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Speciesvirginica  4.090</span></span></code></pre></div>
+<ul>
+<li>Fitted values <span class="math inline">\(\hat{y}\)</span>:</li>
+</ul>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>linreg_ex<span class="sc">$</span>y_fitted</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   [1] 1.462 1.462 1.462 1.462 1.462 1.462 1.462 1.462 1.462 1.462 1.462 1.462</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [13] 1.462 1.462 1.462 1.462 1.462 1.462 1.462 1.462 1.462 1.462 1.462 1.462</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [25] 1.462 1.462 1.462 1.462 1.462 1.462 1.462 1.462 1.462 1.462 1.462 1.462</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [37] 1.462 1.462 1.462 1.462 1.462 1.462 1.462 1.462 1.462 1.462 1.462 1.462</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [49] 1.462 1.462 4.260 4.260 4.260 4.260 4.260 4.260 4.260 4.260 4.260 4.260</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [61] 4.260 4.260 4.260 4.260 4.260 4.260 4.260 4.260 4.260 4.260 4.260 4.260</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [73] 4.260 4.260 4.260 4.260 4.260 4.260 4.260 4.260 4.260 4.260 4.260 4.260</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [85] 4.260 4.260 4.260 4.260 4.260 4.260 4.260 4.260 4.260 4.260 4.260 4.260</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [97] 4.260 4.260 4.260 4.260 5.552 5.552 5.552 5.552 5.552 5.552 5.552 5.552</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [109] 5.552 5.552 5.552 5.552 5.552 5.552 5.552 5.552 5.552 5.552 5.552 5.552</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [121] 5.552 5.552 5.552 5.552 5.552 5.552 5.552 5.552 5.552 5.552 5.552 5.552</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [133] 5.552 5.552 5.552 5.552 5.552 5.552 5.552 5.552 5.552 5.552 5.552 5.552</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [145] 5.552 5.552 5.552 5.552 5.552 5.552</span></span></code></pre></div>
+<ul>
+<li>Residuals <span class="math inline">\(df\)</span>:</li>
+</ul>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>linreg_ex<span class="sc">$</span>residuals</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   [1] -0.062 -0.062 -0.162  0.038 -0.062  0.238 -0.062  0.038 -0.062  0.038</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [11]  0.038  0.138 -0.062 -0.362 -0.262  0.038 -0.162 -0.062  0.238  0.038</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [21]  0.238  0.038 -0.462  0.238  0.438  0.138  0.138  0.038 -0.062  0.138</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [31]  0.138  0.038  0.038 -0.062  0.038 -0.262 -0.162 -0.062 -0.162  0.038</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [41] -0.162 -0.162 -0.162  0.138  0.438 -0.062  0.138 -0.062  0.038 -0.062</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [51]  0.440  0.240  0.640 -0.260  0.340  0.240  0.440 -0.960  0.340 -0.360</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [61] -0.760 -0.060 -0.260  0.440 -0.660  0.140  0.240 -0.160  0.240 -0.360</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [71]  0.540 -0.260  0.640  0.440  0.040  0.140  0.540  0.740  0.240 -0.760</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [81] -0.460 -0.560 -0.360  0.840  0.240  0.240  0.440  0.140 -0.160 -0.260</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [91]  0.140  0.340 -0.260 -0.960 -0.060 -0.060 -0.060  0.040 -1.260 -0.160</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [101]  0.448 -0.452  0.348  0.048  0.248  1.048 -1.052  0.748  0.248  0.548</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [111] -0.452 -0.252 -0.052 -0.552 -0.452 -0.252 -0.052  1.148  1.348 -0.552</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [121]  0.148 -0.652  1.148 -0.652  0.148  0.448 -0.752 -0.652  0.048  0.248</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [131]  0.548  0.848  0.048 -0.452  0.048  0.548  0.048 -0.052 -0.752 -0.152</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [141]  0.048 -0.452 -0.452  0.348  0.148 -0.352 -0.552 -0.352 -0.152 -0.452</span></span></code></pre></div>
+<ul>
+<li>Degrees of freedom <span class="math inline">\(\hat{e}\)</span>:</li>
+</ul>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>linreg_ex<span class="sc">$</span>degrees</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 147</span></span></code></pre></div>
+<ul>
+<li>Residual variance <span class="math inline">\(\hat{\sigma}^2\)</span>:</li>
+</ul>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>linreg_ex<span class="sc">$</span>residual_variance</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 0.1851878</span></span></code></pre></div>
+<ul>
+<li>Variance of regression coefficients <span class="math inline">\(\hat{Var}(\hat{\beta})\)</span>:</li>
+</ul>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>linreg_ex<span class="sc">$</span>coefficient_variance</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                    (Intercept) Speciesversicolor Speciesvirginica</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; (Intercept)        0.003703755      -0.003703755     -0.003703755</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Speciesversicolor -0.003703755       0.007407510      0.003703755</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Speciesvirginica  -0.003703755       0.003703755      0.007407510</span></span></code></pre></div>
+<ul>
+<li>t-values <span class="math inline">\(t_\beta\)</span>:</li>
+</ul>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>linreg_ex<span class="sc">$</span>t_values</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 24.02294 32.50960 47.52118</span></span></code></pre></div>
+<ul>
+<li>p-values <span class="math inline">\(p_\beta\)</span>:</li>
+</ul>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>linreg_ex<span class="sc">$</span>p_values</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 1 1 1</span></span></code></pre></div>
+</div>
+<div id="linear-regression-functions" class="section level1">
+<h1>Linear regression functions</h1>
+<p>The following functions can be used to do an analysis of the
+regression model:</p>
+<ul>
+<li>Print coefficients and coefficient names:</li>
+</ul>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>linreg_ex<span class="sc">$</span><span class="fu">print</span>()</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Call:</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; linreg(formula = Petal.Length ~ Species, data = iris)</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Coefficients:</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       (Intercept) Speciesversicolor  Speciesvirginica </span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;             1.462             2.798             4.090</span></span></code></pre></div>
+<ul>
+<li>Plot regression graphs:</li>
+</ul>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>linreg_ex<span class="sc">$</span><span class="fu">plot</span>()</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 0.3795708 0.3795708 0.6135563 0.2971589 0.3795708 0.7436788 0.3795708 0.2971589 0.3795708 0.2971589 0.2971589 0.5662868 0.3795708 0.9171729 0.7802748 0.2971589 0.6135563 0.3795708 0.7436788 0.2971589 0.7436788 0.2971589 1.036139 0.7436788 1.008867 0.5662868 0.5662868 0.2971589 0.3795708 0.5662868 0.5662868 0.2971589 0.2971589 0.3795708 0.2971589 0.7802748 0.6135563 0.3795708 0.6135563 0.2971589 0.6135563 0.6135563 0.6135563 0.5662868 1.008867 0.3795708 0.5662868 0.3795708 0.2971589 0.3795708 </span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 0.3795708 0.3795708 0.6135563 0.2971589 0.3795708 0.7436788 0.3795708 0.2971589 0.3795708 0.2971589 0.2971589 0.5662868 0.3795708 0.9171729 0.7802748 0.2971589 0.6135563 0.3795708 0.7436788 0.2971589 0.7436788 0.2971589 1.036139 0.7436788 1.008867 0.5662868 0.5662868 0.2971589 0.3795708 0.5662868 0.5662868 0.2971589 0.2971589 0.3795708 0.2971589 0.7802748 0.6135563 0.3795708 0.6135563 0.2971589 0.6135563 0.6135563 0.6135563 0.5662868 1.008867 0.3795708 0.5662868 0.3795708 0.2971589 0.3795708 1.011168 0.746797 1.219514 0.7772909 0.8888662 0.746797 1.011168 1.493594 0.8888662 0.9146358 1.328935 0.3733985 0.7772909 1.011168 1.238423 0.5703756 0.746797 0.6097572 0.746797 0.9146358 1.120195 0.7772909 1.219514 1.011168 0.3048786 0.5703756 1.120195 1.311332 0.746797 1.328935 1.033894 1.140751 0.9146358 1.397129 0.746797 0.746797 1.011168 0.5703756 0.6097572 0.7772909 0.5703756 0.8888662 0.7772909 1.493594 0.3733985 0.3733985 0.3733985 0.3048786 1.711127 0.6097572 </span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 0.3795708 0.3795708 0.6135563 0.2971589 0.3795708 0.7436788 0.3795708 0.2971589 0.3795708 0.2971589 0.2971589 0.5662868 0.3795708 0.9171729 0.7802748 0.2971589 0.6135563 0.3795708 0.7436788 0.2971589 0.7436788 0.2971589 1.036139 0.7436788 1.008867 0.5662868 0.5662868 0.2971589 0.3795708 0.5662868 0.5662868 0.2971589 0.2971589 0.3795708 0.2971589 0.7802748 0.6135563 0.3795708 0.6135563 0.2971589 0.6135563 0.6135563 0.6135563 0.5662868 1.008867 0.3795708 0.5662868 0.3795708 0.2971589 0.3795708 1.011168 0.746797 1.219514 0.7772909 0.8888662 0.746797 1.011168 1.493594 0.8888662 0.9146358 1.328935 0.3733985 0.7772909 1.011168 1.238423 0.5703756 0.746797 0.6097572 0.746797 0.9146358 1.120195 0.7772909 1.219514 1.011168 0.3048786 0.5703756 1.120195 1.311332 0.746797 1.328935 1.033894 1.140751 0.9146358 1.397129 0.746797 0.746797 1.011168 0.5703756 0.6097572 0.7772909 0.5703756 0.8888662 0.7772909 1.493594 0.3733985 0.3733985 0.3733985 0.3048786 1.711127 0.6097572 1.020319 1.024864 0.8992626 0.3339778 0.7591416 1.56055 1.563525 1.318402 0.7591416 1.128463 1.024864 0.7652392 0.3476151 1.132574 1.024864 0.7652392 0.3476151 1.633307 1.769872 1.132574 0.5864457 1.230894 1.633307 1.230894 0.5864457 1.020319 1.321922 1.230894 0.3339778 0.7591416 1.128463 1.403766 0.3339778 1.024864 0.3339778 1.128463 0.3339778 0.3476151 1.321922 0.5943178 0.3339778 1.024864 1.024864 0.8992626 0.5864457 0.9044161 1.132574 0.9044161 0.5943178 1.024864</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [[1]]</span></span></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+<pre><code>#&gt; 
+#&gt; [[2]]</code></pre>
+<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASAAAAEgCAMAAAAjXV6yAAABIFBMVEUAAAAAADoAAGYAOjoAOmYAOpAAZrYzMzM6AAA6ADo6AGY6OgA6OmY6ZmY6ZpA6kNtNTU1NTW5NTY5NbqtNjshmAABmADpmOgBmOjpmOmZmkLZmkNtmtrZmtttmtv9uTU1uTW5uTY5ubo5ubqtuq+SOTU2OTW6OTY6Obk2OyP+QOgCQZjqQZmaQkGaQkLaQtpCQtraQttuQtv+Q27aQ2/+rbk2rbm6rbo6ryKur5OSr5P+2ZgC2Zjq2kDq2kGa2tpC2ttu225C22/+2///Ijk3I///MAADbkDrbkJDbtmbbtpDb27bb29vb2//b/7bb/9vb///kq27k///r6+v/tmb/tpD/yI7/25D/27b/29v/5Kv//7b//8j//9v//+T///9dHnm5AAAACXBIWXMAAA7DAAAOwwHHb6hkAAAOlElEQVR4nO2di7vbNhXAfbveLO3ocsuWjlezsa1AA6MM7jpogI3eNqEDtj5CU26a6///v0BPW7YlH8mSZTs+5/vaXEcPS79IR0dHspykKLWSdF2AvgsCAgQBAYKAAEFAgCAgQBAQIAgIkKaADn9/L0ne+dlzfeDyVB/AZXPtwuYWu59eQDlFkIaADsuEib74YQDRaIMFtE1OH6fpm2Wy0IWGA9S9NAS0OTmnH/v5hPz/bJpcZ5fPSLc7+bkE9OajJPnRY13ivOY0znUWp5wJa6OzPCcai1x98x67Qzxp3IJmyt9EKLAN73YLDmg3ld+XJQe0zeJUMlEAZbFkx9Y225akqZL+a3Jy6w//oX8dlqTozwiww/Ia+ZV30wkDRL6+m6bfTSfVtBkgUuG7FAmLXc4k00FqrGTynPylybM1aTzM/+u35HelDHbTvDH9+5vfTRMOSHytUyTZdzuOb3VyrskkA5THIvQuZL+OJT520OG7n5DffDeVLZ53KgFoy3uD7GOs5wgICiCWdEsBVTJRAMlYXCMdlkMBlKrlp79scuv3334/9wKUZzJoQPu5GMdX1y6y3sErInVQ3iYqUtfF8ky0XWwogNJV8j4ddp9NhX7dzVlFntMRmX7Fvv6SWkp1OqikpIuZMFOirKQHA4j0hKwDbbPBXVrXfHDmV7NqYjGSk6DSMF/IhEarDPODAcTnYifvSxuPDmfcnvuS9DpekR25fOeuJm0OiMW5rs8k3X+UTH7IchKG4mAAjUYQECAICBAEBAgCAgQBAYKAAEFAgCAgQBAQIM0AvVKkcOEX0Ke8EBAQgICAAAQEBCAgIAABAQEICAhAQLqAJEmyCwRUDWCOYHmBgKoBCAgICAfoWIXwqXzVKKMe/ept5YWAgIAyIDdQAQvimaQQoIzSCEgToOrYNgAlqiAgQwvazxf7eQLtLw1XKd8k0QGtJnR3ygbYHhCuUr5JYusg0oDo5okt0IQCVsozSexRjPWwGQIyAjosZ9uTc9rREJAWEN1kOklX0AMSAQvimQQNxah51fiDENCr+tk8/ZQ7M4mMU0lDgLAFISAgwEIHiUclxtnFChd6QMQOOiyJrQg8kRWwIJ5JOrCk0xWxpAFDKGBBPJN0AWiDc7FXZh20YnQ2I21BFkqaKKF0pX3SdASAcJgHAhAQEGABSM42RqqkbSer+zvj1EGFizpAqh10+cun7PPF2dnZj58iIAEo62KvJZUn97EF5ZK5FJ/c/jNvQVcPH/UfUJRVDfVhd6WLvb1HuhhrRO8SSXspFiueDTItfVZEALr85JHSigL+6p5J1IAoC4cmQEwyPRSuUr5JogLSulwHBCjK7o4NP18l9wcJQK8/eJlefY3DvECzLbYg+o/YQbezgSxgQTyTdA9IKwEL4pkkuh0kupjmxA0ExGXLDxlBQCZAVhKwIJ5JEFDUvAB3B99+N2B/kK8ddOweRW9LGgEBATaAxr3L1cLlirtc5YUeEO5yzS6MgHCXK7/QA8JdrtmFHtCwd7ni0z71AVFGsVEDsjIUN2QuD+1+GTOg1en3fKRHQFpAbJhfDHSYj6GDBg0ozqoG7WLocq1R0szlCvAZNSArCVgQzyRdAfrnIHVQyLz0gFbsfQ1EVaOS1gLa0NPWZ1QNxXw5TDDx3/6iSa8ConDS7enfDC/FUiTgr+6ZJKqhyNadyXQeGsPGDgjmM25AN4AtwEcMyGLhcNCAWh/FBg8oZF56QJoteAio+GknAQvimQQBdZUXAgICjhIQLvvUB+CyDxAQwZIe9jAfZdmnstMeARU+B72RPNKyz3ABxXyYBZd9TIBwp728MAGykoAF8UyCgLrKywhowNtfguZlAuS4/YWuk/SnUiHzMgBy3N1RtDw6r1ScfdLDBRRlsuq2/eXIAFntUSxvf5GPhb+9d/bByzKgfukgf0BrC0AlkYebXH11P33x4VG3oPV6bdOCipIdbvL210+VMwb0RWpSKd8koQAROpaTVTbAbysnL1x+9jJ9+yv64Lx6uIn/foqg0rgw67U5z+KneFasCoievMABUVF/tP7ooIZJaOOpBpgA3TlfJYvaFlQA1FWlguWV0SkHGFvQgkw2JrubZUB6HdRNpYLlpdIpp6gBRLcIVVrQ1Vefa0axDioVLK8SnXKKOkDpYVk93ERvB0WuVLC8qnTKKQyALKWTSoXLS0ennGK8gLSNp5pCB6jByQv9Gubh2Ty3B23yCtOChmVJi7bjN5s/WkB5z2o+m3dfeh4MIFXv+Lk7HJeee6WDTIDq7MFCwCiXngF7sBAwPkCwPVgMsHG5DnnpuTjMmwwez2H+SJaezeZgVDuoUdkjAKJ0PPMyADosrZ4Ua6NSwfKC7UGbAAMgcIDvOyAbe9AqwAAoBZfl+wxobWcPWgUYW5DbZNW/IJ5JlICSWm6pBdlJwIJ4JpEBLvagVcBRAXK1B20CTIAc31DXh7lYTifC7g7HN9R1P5tXG4//7g71Qg/I8Q11HQMidMDJqtNNbJaend5Q1ykg1naCArLxBzm+oa4zHSS7Vs1k1f0mNoAc31DXEaBc8URvQW7Sye6OtWkvhndpdBkMzWlfNnmiKun+O+2rBmFQHVS4MLSgHjvt3ezldt0d/fNJO/tPxwWogf+05S7WJ6e9/Xq65+3tZvM9c9o39p+Ow93h4T8dASDj/soGebkHmAA5+oP8C2IKsV1Pt8mrSYABEPikWBxAlUG9N4D6sOyjM3l6A6j7hUO9ydMbQKCJWAIUeKphXFHvDSDHdbGgk9WSA7VBXjEmq3ailCgUoIoD1T2vGD7pjgBpHajOeUXxKHaxLqZ3oLrnFQOQ47qYf6WCbjiI4LR3XBfzbUF1DlT3gBgtKOq6GOBAdQ6IoqTd1sU8ALWw4SDG0rPjulhTQH4bUI0B/bODmukg3w2oVgHtTlZb9EnX2csICLCXew9oky0cSq9Q/qTqi7MzcUpFY0Cgvdx7QBV/kHJix5P7fi1obWEvDwBQSfKn5a8ePlK+d75fQS8PGNCGjO/U4yGXxfLzFkhfOztjjUg9u8NOjNsxhiAFQPQVq9QrnS0c5id2XH7ySGlFDj+IxuQZbAtir67ZTRf5fvviiR25HrK+n9bkGSwgpqFpK8qG+eKJHa6Aom84CJmXERBrPBJQfmIH7WxXXzsM800e2Oo7ILqkwRfGsncZczuINiJiB93O+hp4v2YPbPUdEG09TAVtod0L9ffrbMNByLy0gOgb6makEUGT+VpAHW44CJmXHpCtGLPtdsNByLzaAGT9AH9blQqZlwZQooo7oAAPbPUckE8L6seGg5B5VQA57VHPsmEeRYPJc1yAUqed/DIXmsLuQKcolWrTJ+1GKS/Rej2I43Hcb2ICJCnZt6DxAbJoQmqZ+qM3Wl04VPBAdNKga/OeSYLqoLqlZ4XQcAH55mUHyIZQjyoVMi9LQNiC2MUxAoqjg5wAjXAUcwI0TjsIAbGLIwQUZS7mBqhfOihoXoEA+RfEMwkC6iovBAQE+AEakWALMgQgICDAD5CVOG6zapak9ZsgIEAQECAICBAc5gFBQIAgIEAQECAICJC2AF1+LDbm28tr5WkZW6EPkzhJ4ZkcG2kJEN19TjfnOwjbSvshHK8gL1x/hSeO8dsC9JrW1Lkw6qZ1u/if/sbtHsVncmykRR2kPMNgK44t6OrhXxy7WP5Mjq20B4ju0neTy49vuyF98bmrDio+k2MjrQF6e8+VT+ra6C4/e+mspKk4df32RrEGJXcsOx2Rzs7cf4c+AGrAp/g2aUtxbUHFZ3JspCVA/Md1K3zhcRlLaWIHud0ELWlAEBAgCAgQBAQIAgIEAQHSLaDDkj98tdjdOE/fPE7ZP1X0p6zQ2LGka0D50ee01pWaIyAEVCsZoN2NB9MkuTXlDxXzcxz38+TkCwaIR9tcu2CnPM4oIMaI/idjsyCrk3rdpDeAzmULYk/ub06f0wNE9nPeguhpByQuP/mAcMoBydj8ehqeUNeAmI6eqYC24tUn7HPDAYmw/z1PJUsJSMbe3bQ5xbiBdA2o2oLEMVgzdkaGqDeNx8/MICEnKiAZmz7yb3WYuqv0EJA4FkMFlG5Pf1jSHndyXmpByomPRGdZHYbtJv0DtBXnPrDOI0ex/Z0HBBU7QXVbaEFb9ZQIywPnnaQ/gGjt6L/DkmAg9d7PJ5mSpodmTPjRPbspA0RVOD1DQ8ZmJNsY/vsDiDGg/6jmpu0iH+ZTed4KUTQnf5ozu5sO67+4c57F5topfBFxLgYIAgIEAQGCgABBQICEBFQdZcWLXsSMQh1kFMePSKbO7LVCktSM4xtgFDMk3d8BRr52AW249S/qvskNXTWqJSCtOyS/EzMrG0znoeP7WwUkfx5Rd8XQDQ1INNUVUFtzSqMEBsT9OjNqxSkHeiqAuPtmxxw/uXdHiZRKDw/PasENxgc3/8HyvfGF3uuT02VR6H2lo4h+Tmp8R0ATCg1oSm63oQUkbV6pMvtjRb/K3TeKd0etYxZlynORfiFuPvPvqvfeyhN6d1N+F5kNP5t2YfYdAfOT4IAW4t5idiXqzJQ0qVjmviGlUrw7PBKvYRZF5CL9QhzQQumSvGX8Udx9w88JLyQTdxKF0/uOgBlu8C4mPKElQLIDSPcNL3bm3VEjFaJIhwapU6aDRPz/nrO5mdpB9nPRPMidZTbSH2D0HQG6LzYgUR/exTLvjhpJjVIHqK4EFJDIRgWk9R31C5B03zDHT+7dUSOpUbKOsb1WD0h8l3XymxeFbNIa31GHXYy+JYhJDih39ixU744aSUbJMXMlLTStoQWtaOWpFs6VNM9GKmympHW+o8hKugBoWxzm+Z/c4OXOH+ndoREyB76IkuUi/UIkSU0X2/DEfJifKHcqDfMV3xHwmp5W52KgHW8tkL2bi6tXMaahWJVNgIUGedC+pbgCijnVqIrlW0nrRRg4luIIKOpk9SgFAQGCgABBQIAgIEAQECAICJD/A7l0YHol7kFQAAAAAElFTkSuQmCC" /><!-- --></p>
+<ul>
+<li>Return vector of residuals <span class="math inline">\(\hat{e}\)</span>:</li>
+</ul>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>linreg_ex<span class="sc">$</span><span class="fu">resid</span>()</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   [1] -0.062 -0.062 -0.162  0.038 -0.062  0.238 -0.062  0.038 -0.062  0.038</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [11]  0.038  0.138 -0.062 -0.362 -0.262  0.038 -0.162 -0.062  0.238  0.038</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [21]  0.238  0.038 -0.462  0.238  0.438  0.138  0.138  0.038 -0.062  0.138</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [31]  0.138  0.038  0.038 -0.062  0.038 -0.262 -0.162 -0.062 -0.162  0.038</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [41] -0.162 -0.162 -0.162  0.138  0.438 -0.062  0.138 -0.062  0.038 -0.062</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [51]  0.440  0.240  0.640 -0.260  0.340  0.240  0.440 -0.960  0.340 -0.360</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [61] -0.760 -0.060 -0.260  0.440 -0.660  0.140  0.240 -0.160  0.240 -0.360</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [71]  0.540 -0.260  0.640  0.440  0.040  0.140  0.540  0.740  0.240 -0.760</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [81] -0.460 -0.560 -0.360  0.840  0.240  0.240  0.440  0.140 -0.160 -0.260</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [91]  0.140  0.340 -0.260 -0.960 -0.060 -0.060 -0.060  0.040 -1.260 -0.160</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [101]  0.448 -0.452  0.348  0.048  0.248  1.048 -1.052  0.748  0.248  0.548</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [111] -0.452 -0.252 -0.052 -0.552 -0.452 -0.252 -0.052  1.148  1.348 -0.552</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [121]  0.148 -0.652  1.148 -0.652  0.148  0.448 -0.752 -0.652  0.048  0.248</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [131]  0.548  0.848  0.048 -0.452  0.048  0.548  0.048 -0.052 -0.752 -0.152</span></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [141]  0.048 -0.452 -0.452  0.348  0.148 -0.352 -0.552 -0.352 -0.152 -0.452</span></span></code></pre></div>
+<ul>
+<li>Return the predicted values <span class="math inline">\(\hat{y}\)</span>:</li>
+</ul>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>linreg_ex<span class="sc">$</span><span class="fu">pred</span>()</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   [1] 1.462 1.462 1.462 1.462 1.462 1.462 1.462 1.462 1.462 1.462 1.462 1.462</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [13] 1.462 1.462 1.462 1.462 1.462 1.462 1.462 1.462 1.462 1.462 1.462 1.462</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [25] 1.462 1.462 1.462 1.462 1.462 1.462 1.462 1.462 1.462 1.462 1.462 1.462</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [37] 1.462 1.462 1.462 1.462 1.462 1.462 1.462 1.462 1.462 1.462 1.462 1.462</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [49] 1.462 1.462 4.260 4.260 4.260 4.260 4.260 4.260 4.260 4.260 4.260 4.260</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [61] 4.260 4.260 4.260 4.260 4.260 4.260 4.260 4.260 4.260 4.260 4.260 4.260</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [73] 4.260 4.260 4.260 4.260 4.260 4.260 4.260 4.260 4.260 4.260 4.260 4.260</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [85] 4.260 4.260 4.260 4.260 4.260 4.260 4.260 4.260 4.260 4.260 4.260 4.260</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [97] 4.260 4.260 4.260 4.260 5.552 5.552 5.552 5.552 5.552 5.552 5.552 5.552</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [109] 5.552 5.552 5.552 5.552 5.552 5.552 5.552 5.552 5.552 5.552 5.552 5.552</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [121] 5.552 5.552 5.552 5.552 5.552 5.552 5.552 5.552 5.552 5.552 5.552 5.552</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [133] 5.552 5.552 5.552 5.552 5.552 5.552 5.552 5.552 5.552 5.552 5.552 5.552</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [145] 5.552 5.552 5.552 5.552 5.552 5.552</span></span></code></pre></div>
+<ul>
+<li>Return the coefficients as a named vector:</li>
+</ul>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>linreg_ex<span class="sc">$</span><span class="fu">coef</span>()</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       (Intercept) Speciesversicolor  Speciesvirginica </span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;             1.462             2.798             4.090</span></span></code></pre></div>
+<ul>
+<li>Print a summary of the regression model:</li>
+</ul>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>linreg_ex<span class="sc">$</span><span class="fu">summary</span>()</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Call:</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; linreg(formula =  Petal.Length ~ Species , data =  iris )</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Residuals:</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    Min. 1st Qu.  Median 3rd Qu.    Max. </span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  -1.260  -0.258   0.038   0.240   1.348 </span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  Estimate    Std. Error  t value     p value </span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; (Intercept) 1.462 0.0608584842239832 24.0229446829347 0 *** </span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Speciesversicolor 2.798 0.0860668937750261 32.5095966320547 0 *** </span></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Speciesvirginica 4.09 0.0860668937750261 47.5211759203373 0 *** </span></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Residual standard error: 0.430334468875131 on 147 degrees of freedom</span></span></code></pre></div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
