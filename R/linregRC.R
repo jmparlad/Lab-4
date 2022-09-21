@@ -145,7 +145,6 @@ linreg <- setRefClass(
         ggtitle("Scale - Location")
       
       rplots <- list(p1, p2)
-      # TODO check the median of the standardized residuals computations, 
       return(rplots) 
     },
     resid = function() {
